@@ -136,6 +136,7 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("actions/checkout@v4", workflow)
         self.assertIn("w_HPCKit_p_2023.1.0.46357_offline.exe", installer)
         self.assertIn("intel.oneapi.win.ifort-compiler", installer)
+        self.assertNotIn("continue-with-optional-error", installer)
         self.assertIn("make.bat", workflow)
         self.assertIn("collect_intel_runtimes.ps1", workflow)
         self.assertIn("install/Nays2DH.exe", workflow.replace("\\", "/"))

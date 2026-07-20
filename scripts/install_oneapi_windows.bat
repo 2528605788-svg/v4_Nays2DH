@@ -18,5 +18,5 @@ if not exist "%ONEAPI_INSTALLER%" (
 start /wait "" "%ONEAPI_INSTALLER%" -s -x -f "%ONEAPI_EXTRACT%" --log "%RUNNER_TEMP%\oneapi-extract.log"
 if errorlevel 1 exit /b %errorlevel%
 
-"%ONEAPI_EXTRACT%\bootstrapper.exe" -s --action install --components=%ONEAPI_COMPONENT% --eula=accept --continue-with-optional-error=yes -p=NEED_VS2019_INTEGRATION=0 --log-dir="%RUNNER_TEMP%"
+"%ONEAPI_EXTRACT%\bootstrapper.exe" -s --action install --components=%ONEAPI_COMPONENT% --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir="%RUNNER_TEMP%"
 exit /b %errorlevel%
