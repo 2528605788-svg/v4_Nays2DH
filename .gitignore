@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+# Local isolated development worktrees
+.worktrees/
