@@ -10,19 +10,24 @@ The first version models above-ground vegetation effects only:
 
 - retain the existing Nays2DH shallow-water, sediment-transport, bed-evolution, wetting/drying, and iRIC CGNS interfaces;
 - retain the existing vegetation body drag term based on vegetation density, height, and drag coefficient;
-- update vegetation density and height during the simulation using bounded growth and hydraulic/scour mortality;
+- update vegetation density and height using age-based willow allometry, annual recruitment, and scour-driven uprooting;
 - expose vegetation parameters and vegetation result fields in iRIC;
 - omit root-induced sediment reduction, root cohesion, bank reinforcement, seed dispersal, and species competition.
 
 ## Physical Model
 
-Each wet or dry computational cell carries normalized vegetation occupancy `V` in `[0, 1]`. The existing iRIC grid field `vege_density` supplies the initial vegetation distribution. Actual drag density is `V * density_max`, and the existing Nays2DH body-drag formulation continues to act in both momentum directions.
+Each computational cell carries vegetation presence, vegetation age in years, the bed elevation at the beginning of the current flood cycle, stem density, stem diameter, tree height, and rooting depth. The existing Nays2DH body-drag formulation continues to act in both momentum directions. Its projected-area density is calculated as `N_tree * D_tree`, with the diameter converted from centimetres to metres.
 
-Vegetation evolves at a configurable interval rather than every hydrodynamic iteration:
+Vegetation size follows the willow allometry used by Nagata et al. (2016) and reproduced as Eqs. 18-22 in the target paper:
 
-`dV/dt = r V (1 - V) - M V`
+- `N_tree = 1.52 Y^-0.63` trees per square metre;
+- `D_tree = 0.11 Y^1.77` centimetres;
+- `H_tree = 1.27 D_tree^0.79` metres;
+- `H_root = 28.9 D_tree^0.23` centimetres.
 
-where `r` is the growth rate and `M` is mortality. Mortality increases smoothly when either bed shear stress or absolute bed-elevation change exceeds its configured tolerance. Cells that are continuously submerged above the configured vegetation tolerance receive no recruitment or growth. The numerical update clamps `V` to `[0, 1]`, density to non-negative values, and height to `[0, height_max]`.
+The diameter used by the allometry is calculated from effective age `Y_eff = min(growth_multiplier * Y, allometry_age_limit)`. Thus `growth_multiplier = 1` is normal growth and `2` is the doubled-growth experiment. This assumption is explicit and configurable because the 2025 paper identifies the doubled rate but does not publish a separate doubled coefficient set. The age limit prevents extrapolation of the empirical power laws into nonphysical tree sizes.
+
+At the start of every configured flood cycle, the model records the bed elevation under each vegetated cell. During the flood, vegetation is removed when cumulative local erosion below that reference elevation exceeds `H_root`. Deposition does not count as uprooting. At the end of the low-flow stage, surviving vegetation increases in chronological age by one year. An unvegetated cell recruits one-year-old vegetation when its water depth is below the paper's default threshold of 0.05 m. The remainder of the year is represented by this event and is not hydrodynamically simulated.
 
 This is deliberately a reduced process model. It is physically interpretable but is not a calibrated ecological succession model.
 
@@ -37,28 +42,33 @@ The existing fields remain compatible:
 - `c_tree`: body drag coefficient;
 - `j_vege`: whether finite vegetation height is used.
 
-New calculation-condition parameters will control enable/disable, growth rate, carrying density, maximum height, update interval, shear mortality threshold, bed-change mortality threshold, mortality rate, and inundation tolerance. Defaults will preserve the original static-vegetation behavior unless dynamic vegetation is explicitly enabled.
+New calculation-condition parameters will control enable/disable, flood-cycle duration, first cycle boundary, growth multiplier, recruitment depth threshold, initial vegetation age, and allometry age limit. Defaults will preserve the original static-vegetation behavior unless dynamic vegetation is explicitly enabled. The dynamic path will use the article defaults of a 25 h cycle, 0.05 m recruitment depth, growth multiplier 1.0, and a conservative 30-year allometry limit.
 
-The solver will write vegetation occupancy, vegetation density, and vegetation height as iRIC solution fields alongside bed elevation, depth, velocity, and shear stress. This allows direct spatial comparison inside iRIC without an external plotting program.
+The solver will write vegetation presence, chronological age, effective growth age, projected-area density, tree height, rooting depth, cumulative scour, and survival status as iRIC cell solution fields alongside bed elevation, depth, velocity, and shear stress. This allows direct spatial comparison inside iRIC without an external plotting program.
+
+The forked solver will use a unique `SolverDefinition.name`, caption, and installation directory. It will therefore appear beside stock Nays2DH and will not overwrite the official solver.
 
 ## Cloud Build and Packaging
 
-A Windows GitHub Actions workflow will:
+A dedicated Windows GitHub Actions workflow will replace the upstream online-update publishing workflow in the fork. The upstream workflow is unsuitable here because it is pinned to the 2021 `ifort` installer, reads `config.json` with `build=false`, and expects an i-RIC publishing secret that is unavailable to a personal fork.
+
+The replacement workflow will:
 
 1. install the current Intel Fortran compiler (`ifx`) in the hosted runner;
-2. obtain or locate the iRIC import library needed by the upstream build;
+2. use the `lib/iriclib.lib` import library already versioned in the official solver repository;
 3. compile `src/iric.f90` and `src/Nays2DH.f90` with OpenMP and the runtime options corresponding to the upstream build;
 4. link `Nays2DH.exe` against `iriclib.lib`;
-5. place the executable, `definition.xml`, translations, README, and license in an `iRICsolvers_v4_Nays2DH_Vegetation` directory;
-6. upload that directory as a downloadable ZIP artifact.
+5. inspect executable dependencies and copy the exact redistributable Intel runtime DLLs required by the new executable into the solver directory;
+6. place the executable, `definition.xml`, translations, README, license, and required runtimes in an `iRICsolvers_v4_Nays2DH_Vegetation` directory;
+7. upload that directory as a downloadable ZIP artifact.
 
-The workflow will also support manual dispatch. Compiler installation and compilation occur only on the GitHub runner; the local machine receives only the packaged solver.
+The workflow will support manual dispatch and pushes to the development branch. Compiler installation and compilation occur only on the GitHub runner; the local machine receives only the packaged solver. Packaging the matching redistributables avoids relying on whichever Intel runtime version happens to be present in a user's iRIC installation.
 
 ## Error Handling
 
-The solver validates vegetation parameter ranges at startup and stops with a clear console message for negative rates, non-positive carrying density, invalid thresholds, or a non-positive update interval. Missing new parameters fall back to compatibility defaults. Every iRIC read/write used for the new fields checks the returned status code, and dynamic vegetation is disabled safely if its optional inputs are unavailable.
+The solver validates vegetation parameter ranges at startup and stops with a clear console message for a non-positive flood cycle, non-positive growth multiplier, negative recruitment depth, negative initial age, or an invalid first cycle boundary. Missing new parameters fall back to compatibility defaults. Every iRIC read/write used for the new fields checks the returned status code, and dynamic vegetation is disabled safely if its optional inputs are unavailable.
 
-The build workflow fails before packaging if compilation, linking, or the expected executable check fails. It also records compiler version and artifact contents in the Actions log.
+The build workflow fails before packaging if compilation, linking, dependency collection, or the expected executable check fails. It records compiler version, imported DLL names, and artifact contents in the Actions log. The workflow has read-only repository permissions and does not attempt to publish into the official i-RIC online-update repository.
 
 ## Verification
 
@@ -71,6 +81,13 @@ Cloud verification will compile with `ifx`, confirm that `Nays2DH.exe` exists an
 - Stock Nays2DH remains installed and untouched.
 - The new solver appears as a separate selectable solver in iRIC v4.
 - With dynamic vegetation disabled, the source follows the original static vegetation path.
-- With dynamic vegetation enabled, vegetation remains bounded and affects flow only through the existing body-drag term.
-- Root-induced sediment reduction is absent from source, parameters, and result interpretation.
+- With dynamic vegetation enabled, recruitment occurs only at a cycle boundary in cells shallower than the configured threshold, and vegetation is removed only when cumulative flood scour exceeds its age-dependent rooting depth.
+- Vegetation affects flow only through the existing body-drag term.
+- Rooting depth is used only as an uprooting criterion; root-induced sediment-transport reduction is absent from source, parameters, and result interpretation.
 - GitHub Actions produces a downloadable, installable solver ZIP without a local oneAPI installation.
+
+## References
+
+- Wattanachareekul, P., Inoue, T., and Johnson, J. P. L. (2025), https://doi.org/10.1186/s40645-025-00774-8
+- Nagata, T. et al. (2016), https://doi.org/10.2208/jscejhe.72.I_1081
+- Intel oneAPI CI samples, https://github.com/oneapi-src/oneapi-ci
