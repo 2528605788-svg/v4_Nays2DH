@@ -1,11 +1,11 @@
 @echo off
 setlocal
 
-set "ONEAPI_URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/17762/w_HPCKit_p_2021.2.0.2901.exe"
+set "ONEAPI_URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2a13d966-fcc5-4a66-9fcc-50603820e0c9/w_HPCKit_p_2023.1.0.46357_offline.exe"
 set "ONEAPI_COMPONENT=intel.oneapi.win.ifort-compiler"
 
 if "%~1"=="" (
-  set "ONEAPI_INSTALLER=%RUNNER_TEMP%\w_HPCKit_p_2021.2.0.2901.exe"
+  set "ONEAPI_INSTALLER=%RUNNER_TEMP%\w_HPCKit_p_2023.1.0.46357_offline.exe"
 ) else (
   set "ONEAPI_INSTALLER=%~1"
 )

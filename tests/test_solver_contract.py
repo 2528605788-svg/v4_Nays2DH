@@ -134,7 +134,7 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("runs-on: windows-2022", workflow)
         self.assertNotIn("runs-on: windows-latest", workflow)
         self.assertIn("actions/checkout@v4", workflow)
-        self.assertIn("w_HPCKit_p_2021.2.0.2901.exe", installer)
+        self.assertIn("w_HPCKit_p_2023.1.0.46357_offline.exe", installer)
         self.assertIn("intel.oneapi.win.ifort-compiler", installer)
         self.assertIn("make.bat", workflow)
         self.assertIn("collect_intel_runtimes.ps1", workflow)
