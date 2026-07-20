@@ -54,6 +54,12 @@ Keep `iRICsolvers_v4_Nays2DH` beside it; do not overwrite the stock solver.
 The artifact contains the unique solver definition, executable, translations,
 and the Intel runtime DLLs detected from the compiled executable.
 
+The workflow deliberately uses Intel Classic Fortran `ifort` 2024.2, matching
+the compiler family used by upstream Nays2DH. An A/B smoke test showed that an
+otherwise unmodified upstream solver built with `ifx` 2026.1 overflowed in
+`HCAL` on its first time step, while the stock `ifort` build advanced normally.
+The vegetation equations were therefore not the cause of that failure.
+
 Current limitation: vegetation state is not included in Nays2DH hot-start
 files, so a 32-cycle vegetation experiment should be run continuously.
 

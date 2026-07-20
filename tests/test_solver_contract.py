@@ -125,7 +125,7 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("cg_iric_write_sol_cell_integer", compact)
         self.assertIn("cg_iric_write_sol_cell_real", compact)
 
-    def test_build_uses_ifx_and_uploads_standalone_artifact(self):
+    def test_build_uses_ifort_and_uploads_standalone_artifact(self):
         workflow = read_source(".github/workflows/build.yml")
         makefile = read_source("make.bat")
         installer = read_source("scripts/install_oneapi_windows.bat")
@@ -134,7 +134,7 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("runs-on: windows-2022", workflow)
         self.assertNotIn("runs-on: windows-latest", workflow)
         self.assertIn("actions/checkout@v4", workflow)
-        self.assertIn("2026.1.0.191_offline.exe", installer)
+        self.assertIn("w_HPCKit_p_2024.2.0.633_offline.exe", installer)
         self.assertIn("intel.oneapi.win.ifort-compiler", installer)
         self.assertIn("make.bat", workflow)
         self.assertIn("collect_intel_runtimes.ps1", workflow)
@@ -148,10 +148,13 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("/headers", collector.lower())
         self.assertIn("8664 machine", collector.lower())
         self.assertNotIn("'\\redist\\intel64'", collector.lower())
-        self.assertIn("ifx", makefile.lower())
+        self.assertIn("ifort", makefile.lower())
+        self.assertNotIn("ifx", makefile.lower())
         self.assertIn("oneapi\\setvars.bat", makefile.lower())
         self.assertNotIn("setvars-vcvarsall.bat", makefile.lower())
-        self.assertIn("where ifx", makefile.lower())
+        self.assertIn("where ifort", makefile.lower())
+        self.assertIn("/nostandard-realloc-lhs", makefile.lower())
+        self.assertNotIn("baseline", workflow.lower())
         self.assertIn("vegetation_dynamic.f90", makefile.lower())
         self.assertLess(
             makefile.lower().index("vegetation_dynamic.f90"),

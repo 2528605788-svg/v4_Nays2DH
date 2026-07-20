@@ -2,7 +2,7 @@
 
 ## Goal
 
-Produce an iRIC v4 solver derived from the official `v4_Nays2DH` source that preserves Nays2DH hydrodynamics and sediment transport while adding physically constrained vegetation growth and scour mortality. Compile it in GitHub Actions with Intel `ifx`, so no Intel compiler is installed locally.
+Produce an iRIC v4 solver derived from the official `v4_Nays2DH` source that preserves Nays2DH hydrodynamics and sediment transport while adding physically constrained vegetation growth and scour mortality. Compile it in GitHub Actions with Intel Classic Fortran `ifort` 2024.2, so no Intel compiler is installed locally.
 
 ## Scope
 
@@ -50,11 +50,11 @@ The forked solver will use a unique `SolverDefinition.name`, caption, and instal
 
 ## Cloud Build and Packaging
 
-A dedicated Windows GitHub Actions workflow will replace the upstream online-update publishing workflow in the fork. The upstream workflow is unsuitable here because it is pinned to the 2021 `ifort` installer, reads `config.json` with `build=false`, and expects an i-RIC publishing secret that is unavailable to a personal fork.
+A dedicated Windows GitHub Actions workflow will replace the upstream online-update publishing workflow in the fork. The upstream publishing workflow reads `config.json` with `build=false` and expects an i-RIC publishing secret that is unavailable to a personal fork. Intel Classic Fortran 2024.2 is pinned because it is the final oneAPI release that contains `ifort` and preserves the compiler behavior expected by this legacy solver.
 
 The replacement workflow will:
 
-1. install the current Intel Fortran compiler (`ifx`) in the hosted runner;
+1. install Intel Classic Fortran (`ifort`) 2024.2 in the hosted runner;
 2. use the `lib/iriclib.lib` import library already versioned in the official solver repository;
 3. compile `src/iric.f90` and `src/Nays2DH.f90` with OpenMP and the runtime options corresponding to the upstream build;
 4. link `Nays2DH.exe` against `iriclib.lib`;
@@ -74,7 +74,13 @@ The build workflow fails before packaging if compilation, linking, dependency co
 
 Local tests that do not require Intel Fortran will verify the source contract: parameter definitions exist, defaults preserve static behavior, the update is inserted at the intended point, vegetation results are declared and written, and the workflow packages all required iRIC files.
 
-Cloud verification will compile with `ifx`, confirm that `Nays2DH.exe` exists and is non-empty, and publish the ZIP. Installation verification will copy the ZIP contents into the iRIC v4 `solvers` directory, launch iRIC, confirm the solver appears separately from stock Nays2DH, open its calculation conditions, and run a minimal case that produces bed-elevation and vegetation result fields.
+Cloud verification will compile with `ifort`, confirm that `Nays2DH.exe` exists and is non-empty, and publish the ZIP. Installation verification will first run a cold-start Nays2DH case outside the installed solver directory, then copy the verified ZIP contents into the iRIC v4 `solvers` directory, launch iRIC, confirm the solver appears separately from stock Nays2DH, open its calculation conditions, and run a minimal case that produces bed-elevation and vegetation result fields.
+
+The compiler choice is based on an A/B diagnostic: both the coupled solver and
+an unmodified upstream baseline compiled with `ifx` 2026.1 produced the same
+first-step floating overflow in `HCAL`, while the stock `ifort` executable
+advanced the same cold-start case. This isolates the failure to legacy-source
+compatibility with `ifx`, not to the vegetation coupling.
 
 ## Acceptance Criteria
 

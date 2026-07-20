@@ -18,34 +18,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Checkout upstream baseline for IFX diagnosis
-        uses: actions/checkout@v4
-        with:
-          repository: iRICsolvers/v4_Nays2DH
-          ref: main
-          path: .baseline
-
       - name: Cache Intel oneAPI installer
         uses: actions/cache@v4
         with:
           path: .cache/oneapi
-          key: intel-oneapi-fortran-windows-2026.1.0.191
+          key: intel-oneapi-ifort-windows-2024.2.0.633
 
       - name: Install Intel oneAPI Fortran compiler
         shell: cmd
         run: |
           if not exist .cache\oneapi mkdir .cache\oneapi
-          scripts\install_oneapi_windows.bat .cache\oneapi\intel-oneapi-toolkit-2026.1.0.191_offline.exe
+          scripts\install_oneapi_windows.bat .cache\oneapi\w_HPCKit_p_2024.2.0.633_offline.exe
 
       - name: Run source contract tests
         shell: pwsh
         run: python -m unittest tests/test_solver_contract.py -v
 
-      - name: Compile with ifx
+      - name: Compile with ifort
         shell: cmd
-        run: |
-          call make.bat
-          call scripts\build_ifx_baseline.bat
+        run: call make.bat
 
       - name: Collect Intel runtime libraries
         shell: pwsh
@@ -76,11 +67,3 @@ jobs:
           path: package/iRICsolvers_v4_Nays2DH_Vegetation
           if-no-files-found: error
           retention-days: 14
-
-      - name: Upload upstream IFX diagnostic baseline
-        uses: actions/upload-artifact@v4
-        with:
-          name: Nays2DH-upstream-ifx-diagnostic
-          path: diagnostic/Nays2DHBaseline.exe
-          if-no-files-found: error
-          retention-days: 3
