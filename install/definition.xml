@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <SolverDefinition 
 xmlns="www.iric.net/SolverDefinition/1.0" 
-name="Nays2DH" 
-caption="Nays2DH iRIC.4x 1.0 64bit" 
-version="1.7.000" 
+name="Nays2DHVegetation"
+caption="Nays2DH Dynamic Vegetation iRIC4"
+version="1.0.000"
 copyright="Yasuyuki SHIMIZU and Hiroshi TAKEBAYASHI" 
 release="2026.4.15" 
 homepage="http://i-ric.org" 
@@ -462,6 +462,38 @@ gridtype="structured2d"
 								<Enumeration value="1" caption="Yes"/>
 							</Enumerations>
 						</Definition>
+					</Item>
+				</Items>
+			</Content>
+		</Tab>
+		<Tab name="dynamic_vegetation" caption="Dynamic Vegetation">
+			<Content>
+				<Items>
+					<Item name="j_veg_dynamic" caption="Dynamic vegetation">
+						<Definition valueType="integer" default="0">
+							<Enumerations>
+								<Enumeration value="0" caption="Disabled (original static vegetation)"/>
+								<Enumeration value="1" caption="Enabled"/>
+							</Enumerations>
+						</Definition>
+					</Item>
+					<Item name="veg_cycle_hours" caption="Flood cycle duration (hour)">
+						<Definition valueType="real" default="25" min="0.000001"/>
+					</Item>
+					<Item name="veg_first_boundary_hours" caption="First cycle boundary (hour)">
+						<Definition valueType="real" default="25" min="0"/>
+					</Item>
+					<Item name="veg_growth_multiplier" caption="Growth multiplier">
+						<Definition valueType="real" default="1" min="0.000001"/>
+					</Item>
+					<Item name="veg_recruitment_depth" caption="Recruitment water-depth threshold (m)">
+						<Definition valueType="real" default="0.05" min="0"/>
+					</Item>
+					<Item name="veg_initial_age" caption="Initial vegetation age (year)">
+						<Definition valueType="real" default="1" min="0.000001"/>
+					</Item>
+					<Item name="veg_allometry_age_limit" caption="Allometry effective-age cap (year)">
+						<Definition valueType="real" default="30" min="0.000001"/>
 					</Item>
 				</Items>
 			</Content>
@@ -1301,6 +1333,27 @@ gridtype="structured2d"
 		</Output>
 		<Output name="SuspendedSedimentConcentration" caption="SuspendedSedimentConcentration">
 			<Definition valueType="real" position="node" />
+		</Output>
+		<Output name="VegetationPresence" caption="Vegetation presence">
+			<Definition valueType="integer" position="cell" />
+		</Output>
+		<Output name="VegetationAge(year)" caption="Vegetation age (year)">
+			<Definition valueType="real" position="cell" />
+		</Output>
+		<Output name="VegetationEffectiveAge(year)" caption="Vegetation effective age (year)">
+			<Definition valueType="real" position="cell" />
+		</Output>
+		<Output name="VegetationProjectedDensity(m-1)" caption="Vegetation projected density (m-1)">
+			<Definition valueType="real" position="cell" />
+		</Output>
+		<Output name="VegetationHeight(m)" caption="Vegetation height (m)">
+			<Definition valueType="real" position="cell" />
+		</Output>
+		<Output name="VegetationRootDepth(m)" caption="Vegetation root depth (m)">
+			<Definition valueType="real" position="cell" />
+		</Output>
+		<Output name="VegetationMaxScour(m)" caption="Maximum scour since cycle boundary (m)">
+			<Definition valueType="real" position="cell" />
 		</Output>
 
 	</GridRelatedCondition>

@@ -9,7 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def read_source(relative_path):
     path = ROOT / relative_path
-    return path.read_text(encoding="utf-8") if path.exists() else ""
+    if not path.exists():
+        return ""
+    raw = path.read_bytes()
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw.decode("cp932", errors="replace")
 
 
 class SolverContractTests(unittest.TestCase):
@@ -81,6 +87,42 @@ class SolverContractTests(unittest.TestCase):
             "VegetationMaxScour(m)",
         ):
             self.assertEqual(outputs.get(name), "cell")
+
+    def test_nays2dh_reads_and_updates_dynamic_vegetation(self):
+        source = read_source("src/Nays2DH.f90").lower()
+        compact = re.sub(r"\s+", "", source)
+        self.assertIn("usevegetation_dynamic_m", compact)
+        for name in (
+            "j_veg_dynamic",
+            "veg_cycle_hours",
+            "veg_first_boundary_hours",
+            "veg_growth_multiplier",
+            "veg_recruitment_depth",
+            "veg_initial_age",
+            "veg_allometry_age_limit",
+        ):
+            self.assertIn(f"'{name}'", source)
+        self.assertIn("callupdate_vegetation_scour", compact)
+        self.assertIn("callfinish_vegetation_cycle", compact)
+        self.assertIn("callsync_vegetation_drag", compact)
+        self.assertIn("!$ompsingle", compact)
+        self.assertIn("!$ompbarrier", compact)
+        self.assertIn("if(.not.veg_params%enabled)callvegetation_height", compact)
+
+    def test_nays2dh_writes_every_dynamic_cell_output(self):
+        compact = re.sub(r"\s+", "", read_source("src/Nays2DH.f90").lower())
+        for name in (
+            "vegetationpresence",
+            "vegetationage(year)",
+            "vegetationeffectiveage(year)",
+            "vegetationprojecteddensity(m-1)",
+            "vegetationheight(m)",
+            "vegetationrootdepth(m)",
+            "vegetationmaxscour(m)",
+        ):
+            self.assertIn(f"'{name}'", compact)
+        self.assertIn("cg_iric_write_sol_cell_integer", compact)
+        self.assertIn("cg_iric_write_sol_cell_real", compact)
 
     def test_build_uses_ifx_and_uploads_standalone_artifact(self):
         workflow = read_source(".github/workflows/build.yml")

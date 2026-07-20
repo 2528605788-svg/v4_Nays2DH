@@ -33,3 +33,4 @@
 
 # Local isolated development worktrees
 .worktrees/
+__pycache__/
