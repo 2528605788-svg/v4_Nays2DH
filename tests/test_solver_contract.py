@@ -107,7 +107,8 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("callsync_vegetation_drag", compact)
         self.assertIn("!$ompsingle", compact)
         self.assertIn("!$ompbarrier", compact)
-        self.assertIn("if(.not.veg_params%enabled)callvegetation_height", compact)
+        self.assertIn("callvegetation_height", compact)
+        self.assertNotIn("if(.not.veg_params%enabled)callvegetation_height", compact)
 
     def test_nays2dh_writes_every_dynamic_cell_output(self):
         compact = re.sub(r"\s+", "", read_source("src/Nays2DH.f90").lower())

@@ -11932,7 +11932,13 @@ Program Shimizu
 !$omp end single
    !
    !-------------------------------------------
-     if (.not. veg_params%enabled) call vegetation_height
+     call vegetation_height
+!$omp single
+     if (veg_params%enabled) then
+        call sync_vegetation_drag(veg_state, veg_params, c_tree, &
+             cd_veg, vege_h, nx, ny)
+     end if
+!$omp end single
      call hcal( errmax, err, lcount, alh, qc_ave, hs_ave )
      if( jrep == 1 ) call hcal_v(     qp, qc_ave, hs_ave )
      call bound_h( hn, hs, eta )
