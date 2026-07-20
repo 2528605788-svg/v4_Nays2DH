@@ -150,6 +150,20 @@ class SolverContractTests(unittest.TestCase):
             makefile.lower().index("nays2dh.f90"),
         )
 
+    def test_readme_documents_physics_and_installation_limits(self):
+        readme = read_source("README.md").lower()
+        for phrase in (
+            "body drag only",
+            "no root-induced sediment reduction",
+            "25 h",
+            "0.05 m",
+            "effective age = actual age * growth multiplier",
+            "30-year cap",
+            "iricsolvers_v4_nays2dh_vegetation",
+            "github actions artifact",
+        ):
+            self.assertIn(phrase, readme)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,3 +6,16 @@ Nays2D, developed by Dr. Yasuyuki Shimizu in Hokkaido University in Japan, is a 
 Nays2DH development team
 Yasuyuki SHIMIZU, Hokkaido University, Japan.
 Hiroshi TAKEBAYASHI, Kyoto University, Japan
+
+Dynamic Vegetation build
+------------------------
+Install this package as iRICsolvers_v4_Nays2DH_Vegetation, separately from the
+stock iRIC Nays2DH solver. The extension applies willow age-dependent body
+drag, cycle-end shallow-water recruitment, and uprooting when cumulative scour
+exceeds root depth. Roots do not directly reduce sediment transport.
+
+Defaults are a 25-hour flood cycle, a 0.05-m recruitment depth threshold,
+initial age 1 year, growth multiplier 1, and a 30-year effective-age cap. For
+the quick 32-cycle experiment set the growth multiplier to 2 and provide an
+uninterrupted 800-hour hydrograph. Effective age equals actual age times the
+growth multiplier.
