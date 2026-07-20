@@ -14,3 +14,15 @@ ifort baseline_iric.obj baseline_Nays2DH.obj .\.baseline\lib\iriclib.lib -o Nays
 if not exist diagnostic mkdir diagnostic
 copy /y Nays2DHBaseline.exe diagnostic\Nays2DHBaseline.exe || exit /b 1
 del /q baseline_*.obj *.mod 2>nul
+
+ifort .\.baseline\src\iric.f90 /Qopenmp /nostandard-realloc-lhs /MD /Qinit:zero /c /object:zero_iric.obj || exit /b 1
+ifort .\.baseline\src\Nays2DH.f90 /Qopenmp /nostandard-realloc-lhs /MD /Qinit:zero /c /object:zero_Nays2DH.obj || exit /b 1
+ifort zero_iric.obj zero_Nays2DH.obj .\.baseline\lib\iriclib.lib -o Nays2DHBaselineZero.exe || exit /b 1
+copy /y Nays2DHBaselineZero.exe diagnostic\Nays2DHBaselineZero.exe || exit /b 1
+del /q zero_*.obj *.mod 2>nul
+
+ifort .\.baseline\src\iric.f90 /Qopenmp /nostandard-realloc-lhs /MD /Od /check:bounds /traceback /fpe:0 /Qinit:snan /c /object:snan_iric.obj || exit /b 1
+ifort .\.baseline\src\Nays2DH.f90 /Qopenmp /nostandard-realloc-lhs /MD /Od /check:bounds /traceback /fpe:0 /Qinit:snan /c /object:snan_Nays2DH.obj || exit /b 1
+ifort snan_iric.obj snan_Nays2DH.obj .\.baseline\lib\iriclib.lib /traceback /fpe:0 -o Nays2DHBaselineSnan.exe || exit /b 1
+copy /y Nays2DHBaselineSnan.exe diagnostic\Nays2DHBaselineSnan.exe || exit /b 1
+del /q snan_*.obj *.mod 2>nul
