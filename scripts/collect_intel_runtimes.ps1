@@ -51,7 +51,13 @@ New-Item -ItemType Directory -Force -Path $Destination | Out-Null
 foreach ($runtimeName in $runtimeNames) {
     $candidate = Get-ChildItem -LiteralPath $compilerRoot -Recurse `
         -File -Filter $runtimeName |
-        Where-Object { $_.FullName -match '\\redist\\intel64' } |
+        Where-Object { $_.FullName -notmatch '\\bin32\\' } |
+        ForEach-Object {
+            $headers = & $dumpbinPath /headers $_.FullName
+            if ($LASTEXITCODE -eq 0 -and $headers -match '8664 machine') {
+                $_
+            }
+        } |
         Sort-Object FullName -Descending |
         Select-Object -First 1
     if ($null -eq $candidate) {
