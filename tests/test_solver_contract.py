@@ -39,6 +39,14 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("water_depth(i,j)<=params%recruitment_depth", compact)
         self.assertIn("state%age(i,j)=1.d0", compact)
 
+    def test_initialization_reads_only_real_iric_cells(self):
+        source = read_source("src/vegetation_dynamic.f90").lower()
+        block = source.split("subroutine initialize_vegetation_state", 1)[1]
+        block = block.split("end subroutine initialize_vegetation_state", 1)[0]
+        compact = re.sub(r"\s+", "", block)
+        self.assertIn("doj=1,ny", compact)
+        self.assertIn("doi=1,nx", compact)
+
     def test_definition_has_unique_identity_controls_and_cell_outputs(self):
         root = ET.parse(ROOT / "install/definition.xml").getroot()
         self.assertEqual(root.attrib["name"], "Nays2DHVegetation")

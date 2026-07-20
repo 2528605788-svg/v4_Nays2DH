@@ -90,13 +90,13 @@ contains
                                          bed_elevation, nx, ny)
     type(vegetation_state), intent(inout) :: state
     type(vegetation_parameters), intent(in) :: params
-    real(8), intent(in) :: initial_density(0:,0:)
+    real(8), intent(in) :: initial_density(:,:)
     real(8), intent(in) :: bed_elevation(0:,0:)
     integer, intent(in) :: nx, ny
     integer :: i, j
 
-    do j = 0, ny
-      do i = 0, nx
+    do j = 1, ny
+      do i = 1, nx
         state%anchor_elevation(i,j) = bed_elevation(i,j)
         if (initial_density(i,j) > 0.d0) then
           state%presence(i,j) = 1
