@@ -22,13 +22,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .cache/oneapi
-          key: intel-oneapi-ifort-windows-2024.2.0.633
+          key: intel-oneapi-ifort-windows-2021.2.0.2901
 
       - name: Install Intel oneAPI Fortran compiler
         shell: cmd
         run: |
           if not exist .cache\oneapi mkdir .cache\oneapi
-          scripts\install_oneapi_windows.bat .cache\oneapi\w_HPCKit_p_2024.2.0.633_offline.exe
+          scripts\install_oneapi_windows.bat .cache\oneapi\w_HPCKit_p_2021.2.0.2901.exe
 
       - name: Run source contract tests
         shell: pwsh

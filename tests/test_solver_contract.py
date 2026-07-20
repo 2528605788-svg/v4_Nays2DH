@@ -134,7 +134,7 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("runs-on: windows-2022", workflow)
         self.assertNotIn("runs-on: windows-latest", workflow)
         self.assertIn("actions/checkout@v4", workflow)
-        self.assertIn("w_HPCKit_p_2024.2.0.633_offline.exe", installer)
+        self.assertIn("w_HPCKit_p_2021.2.0.2901.exe", installer)
         self.assertIn("intel.oneapi.win.ifort-compiler", installer)
         self.assertIn("make.bat", workflow)
         self.assertIn("collect_intel_runtimes.ps1", workflow)
@@ -154,6 +154,7 @@ class SolverContractTests(unittest.TestCase):
         self.assertNotIn("setvars-vcvarsall.bat", makefile.lower())
         self.assertIn("where ifort", makefile.lower())
         self.assertIn("/nostandard-realloc-lhs", makefile.lower())
+        self.assertIn("vsdevcmd.bat", makefile.lower())
         self.assertNotIn("baseline", workflow.lower())
         self.assertIn("vegetation_dynamic.f90", makefile.lower())
         self.assertLess(
