@@ -18,6 +18,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout unmodified upstream baseline
+        uses: actions/checkout@v4
+        with:
+          repository: iRICsolvers/v4_Nays2DH
+          ref: main
+          path: .baseline
+
       - name: Cache Intel oneAPI installer
         uses: actions/cache@v4
         with:
@@ -36,7 +43,9 @@ jobs:
 
       - name: Compile with ifort
         shell: cmd
-        run: call make.bat
+        run: |
+          call make.bat
+          call scripts\build_ifort_baseline.bat
 
       - name: Collect Intel runtime libraries
         shell: pwsh
@@ -67,3 +76,11 @@ jobs:
           path: package/iRICsolvers_v4_Nays2DH_Vegetation
           if-no-files-found: error
           retention-days: 14
+
+      - name: Upload unmodified upstream baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nays2DH-upstream-ifort2023-baseline
+          path: diagnostic/Nays2DHBaseline.exe
+          if-no-files-found: error
+          retention-days: 3
