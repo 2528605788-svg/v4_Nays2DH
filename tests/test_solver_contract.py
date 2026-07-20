@@ -145,6 +145,9 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("dumpbin", collector.lower())
         self.assertIn("libiomp", collector.lower())
         self.assertIn("ifx", makefile.lower())
+        self.assertIn("oneapi\\setvars.bat", makefile.lower())
+        self.assertNotIn("setvars-vcvarsall.bat", makefile.lower())
+        self.assertIn("where ifx", makefile.lower())
         self.assertIn("vegetation_dynamic.f90", makefile.lower())
         self.assertLess(
             makefile.lower().index("vegetation_dynamic.f90"),
