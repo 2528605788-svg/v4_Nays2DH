@@ -44,8 +44,8 @@ jobs:
       - name: Compile with ifx
         shell: cmd
         run: |
-          make.bat
-          scripts\build_ifx_baseline.bat
+          call make.bat
+          call scripts\build_ifx_baseline.bat
 
       - name: Collect Intel runtime libraries
         shell: pwsh
