@@ -11121,6 +11121,7 @@ Program Shimizu
     end do
 
     qp    = q_ups(0)
+    qp_t  = 0.d0
     if(j_conf.ge.1) qp_t=q_ups_t(0)		!h101019 conf
     etime = t_hyd(nq)
     if( ster < 0.) then

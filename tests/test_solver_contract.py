@@ -110,6 +110,14 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("callvegetation_height", compact)
         self.assertNotIn("if(.not.veg_params%enabled)callvegetation_height", compact)
 
+    def test_no_tributary_discharge_defaults_to_zero(self):
+        compact = re.sub(r"\s+", "", read_source("src/Nays2DH.f90").lower())
+        default = "qp_t=0.d0"
+        tributary = "if(j_conf.ge.1)qp_t=q_ups_t(0)"
+        self.assertIn(default, compact)
+        self.assertIn(tributary, compact)
+        self.assertLess(compact.index(default), compact.index(tributary))
+
     def test_nays2dh_writes_every_dynamic_cell_output(self):
         compact = re.sub(r"\s+", "", read_source("src/Nays2DH.f90").lower())
         for name in (
