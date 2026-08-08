@@ -14,4 +14,16 @@ ifort .\src\Nays2DH.f90 /Qopenmp /nostandard-realloc-lhs /MD /Od /check:bounds /
 ifort dynamic_snan_iric.obj dynamic_snan_vegetation.obj dynamic_snan_Nays2DH.obj .\lib\iriclib.lib /traceback /fpe:0 -o diagnostic-dynamic\Nays2DHDynamicSnan.exe || exit /b 1
 del /q dynamic_snan_*.obj *.mod 2>nul
 
+ifort .\src\iric.f90 /Qopenmp /nostandard-realloc-lhs /MD /fp:precise /c /object:dynamic_precise_iric.obj || exit /b 1
+ifort .\src\vegetation_dynamic.f90 /Qopenmp /nostandard-realloc-lhs /MD /fp:precise /c /object:dynamic_precise_vegetation.obj || exit /b 1
+ifort .\src\Nays2DH.f90 /Qopenmp /nostandard-realloc-lhs /MD /fp:precise /c /object:dynamic_precise_Nays2DH.obj || exit /b 1
+ifort dynamic_precise_iric.obj dynamic_precise_vegetation.obj dynamic_precise_Nays2DH.obj .\lib\iriclib.lib /fp:precise -o diagnostic-dynamic\Nays2DHDynamicPrecise.exe || exit /b 1
+del /q dynamic_precise_*.obj *.mod 2>nul
+
+ifort .\src\iric.f90 /Qopenmp /nostandard-realloc-lhs /MD /fp:source /c /object:dynamic_source_iric.obj || exit /b 1
+ifort .\src\vegetation_dynamic.f90 /Qopenmp /nostandard-realloc-lhs /MD /fp:source /c /object:dynamic_source_vegetation.obj || exit /b 1
+ifort .\src\Nays2DH.f90 /Qopenmp /nostandard-realloc-lhs /MD /fp:source /c /object:dynamic_source_Nays2DH.obj || exit /b 1
+ifort dynamic_source_iric.obj dynamic_source_vegetation.obj dynamic_source_Nays2DH.obj .\lib\iriclib.lib /fp:source -o diagnostic-dynamic\Nays2DHDynamicSource.exe || exit /b 1
+del /q dynamic_source_*.obj *.mod 2>nul
+
 endlocal

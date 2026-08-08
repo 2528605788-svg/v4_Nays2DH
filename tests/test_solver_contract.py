@@ -178,6 +178,10 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("/fpe:0", diagnostic_builder)
         self.assertIn("/traceback", diagnostic_builder)
         self.assertIn("nays2dhdynamicsnan.exe", diagnostic_builder)
+        self.assertIn("/fp:precise", diagnostic_builder)
+        self.assertIn("nays2dhdynamicprecise.exe", diagnostic_builder)
+        self.assertIn("/fp:source", diagnostic_builder)
+        self.assertIn("nays2dhdynamicsource.exe", diagnostic_builder)
         self.assertIn("vegetation_dynamic.f90", makefile.lower())
         self.assertLess(
             makefile.lower().index("vegetation_dynamic.f90"),
