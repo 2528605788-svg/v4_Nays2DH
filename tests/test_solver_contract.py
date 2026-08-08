@@ -118,6 +118,17 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn(tributary, compact)
         self.assertLess(compact.index(default), compact.index(tributary))
 
+    def test_missing_permeability_attributes_default_to_open_faces(self):
+        compact = re.sub(r"\s+", "", read_source("src/Nays2DH.f90").lower())
+        iface_default = "iface4=0"
+        jface_default = "jface4=0"
+        iface_read = "cg_iric_read_grid_integer_iface(fid,\"permeability_i\",iface4,ier)"
+        jface_read = "cg_iric_read_grid_integer_jface(fid,\"permeability_j\",jface4,ier)"
+        self.assertIn(iface_default, compact)
+        self.assertIn(jface_default, compact)
+        self.assertLess(compact.index(iface_default), compact.index(iface_read))
+        self.assertLess(compact.index(jface_default), compact.index(jface_read))
+
     def test_nays2dh_writes_every_dynamic_cell_output(self):
         compact = re.sub(r"\s+", "", read_source("src/Nays2DH.f90").lower())
         for name in (
