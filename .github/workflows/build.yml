@@ -46,6 +46,7 @@ jobs:
         run: |
           call make.bat
           call scripts\build_ifort_baseline.bat
+          call scripts\build_ifort_diagnostics.bat
 
       - name: Collect Intel runtime libraries
         shell: pwsh
@@ -82,5 +83,13 @@ jobs:
         with:
           name: Nays2DH-upstream-ifort2023-baseline
           path: diagnostic/*.exe
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload dynamic SNaN diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nays2DH-dynamic-ifort2023-snan
+          path: diagnostic-dynamic/Nays2DHDynamicSnan.exe
           if-no-files-found: error
           retention-days: 3

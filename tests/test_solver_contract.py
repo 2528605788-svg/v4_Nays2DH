@@ -166,10 +166,18 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("vsdevcmd.bat", makefile.lower())
         self.assertIn("build_ifort_baseline.bat", workflow.lower())
         self.assertIn("Nays2DH-upstream-ifort2023-baseline", workflow)
+        self.assertIn("build_ifort_diagnostics.bat", workflow.lower())
+        self.assertIn("Nays2DH-dynamic-ifort2023-snan", workflow)
         baseline_builder = read_source("scripts/build_ifort_baseline.bat").lower()
         self.assertIn("/qinit:zero", baseline_builder)
         self.assertIn("/qinit:snan", baseline_builder)
         self.assertIn("/traceback", baseline_builder)
+        diagnostic_builder = read_source("scripts/build_ifort_diagnostics.bat").lower()
+        self.assertIn("src\\vegetation_dynamic.f90", diagnostic_builder)
+        self.assertIn("/qinit:snan", diagnostic_builder)
+        self.assertIn("/fpe:0", diagnostic_builder)
+        self.assertIn("/traceback", diagnostic_builder)
+        self.assertIn("nays2dhdynamicsnan.exe", diagnostic_builder)
         self.assertIn("vegetation_dynamic.f90", makefile.lower())
         self.assertLess(
             makefile.lower().index("vegetation_dynamic.f90"),
