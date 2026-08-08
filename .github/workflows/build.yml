@@ -90,6 +90,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Nays2DH-dynamic-ifort2023-snan
-          path: diagnostic-dynamic/Nays2DHDynamicSnan.exe
+          path: diagnostic-dynamic/*.exe
           if-no-files-found: error
           retention-days: 3

@@ -168,6 +168,7 @@ class SolverContractTests(unittest.TestCase):
         self.assertIn("Nays2DH-upstream-ifort2023-baseline", workflow)
         self.assertIn("build_ifort_diagnostics.bat", workflow.lower())
         self.assertIn("Nays2DH-dynamic-ifort2023-snan", workflow)
+        self.assertIn("diagnostic-dynamic/*.exe", workflow.replace("\\", "/"))
         baseline_builder = read_source("scripts/build_ifort_baseline.bat").lower()
         self.assertIn("/qinit:zero", baseline_builder)
         self.assertIn("/qinit:snan", baseline_builder)
