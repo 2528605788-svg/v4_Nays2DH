@@ -2935,6 +2935,13 @@ module hcal_m
 
 						yun(i,j) = (yu(i,j)+(c_xi+p_xi)*dt)/(1.d0-f_xi*dt)
 
+						if (dabs(yun(i,j)) > 1.d100 .or. &
+								dabs(sj(i,j)+sj(i+1,j)) < 1.d-100) then
+							write(*,*) 'HCAL_XI_OVERFLOW_INPUT', i, j, &
+								yu(i,j), c_xi, p_xi, f_xi, dt, yun(i,j), &
+								hs(i,j), hs(i+1,j), sj(i,j), sj(i+1,j)
+						end if
+
 !						if(hs(i  ,j) <= hmin.and.yun(i,j) > 0.d0) yun(i,j) = 0.d0
 !						if(hs(i+1,j) <= hmin.and.yun(i,j) < 0.d0) yun(i,j) = 0.d0
 
